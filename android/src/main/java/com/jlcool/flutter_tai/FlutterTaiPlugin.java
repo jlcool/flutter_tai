@@ -47,17 +47,12 @@ import java.util.UUID;
  */
 public class FlutterTaiPlugin implements MethodCallHandler {
     private static Context _context;
-    private static Activity _activity;
     private static MethodChannel _channel;
-    FlutterTaiPlugin(){
-        requestPermission();
-    }
     /**
      * Plugin registration.
      */
     public static void registerWith(Registrar registrar) {
-        _context = registrar.context();
-        _activity= registrar.activity();
+        _context = registrar.context(); 
         _channel = new MethodChannel(registrar.messenger(), "flutter_tai");
         _channel.setMethodCallHandler(new FlutterTaiPlugin());
     }
@@ -166,17 +161,6 @@ public class FlutterTaiPlugin implements MethodCallHandler {
                     _channel.invokeMethod("onResult", _data);
                 }
             });
-        }
-    }
-
-    private void requestPermission()
-    {
-        if (ContextCompat.checkSelfPermission(_context,
-                Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(_activity,
-                    new String[]{Manifest.permission.RECORD_AUDIO},
-                    1234);
         }
     }
 
