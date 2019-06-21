@@ -83,7 +83,7 @@ class FlutterTai {
       String token = "",
       int workMode = TAIOralEvaluationWorkMode.STREAM,
       int evalMode = TAIOralEvaluationEvalMode.FREE,
-      int storageMode = TAIOralEvaluationStorageMode.DISABLE,
+      int storageMode = TAIOralEvaluationStorageMode.ENABLE,
       int serverType = TAIOralEvaluationServerType.ENGLISH,
       int textMode = TAIOralEvaluationTextMode.NORMAL,
       double scoreCoeff = 1,
