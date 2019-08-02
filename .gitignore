@@ -7,3 +7,4 @@
 build/
 /example/pubspec.lock
 /.idea
+/pubspec.lock
