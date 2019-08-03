@@ -77,7 +77,9 @@ class FlutterTai {
         break;
     }
   }
-
+  Future stop()async{
+    await _invokeMethod('stop');
+  }
   Future record(String appId, String secretId, String secretKey, String refText,
       {String soeAppId = "",
       String token = "",
@@ -90,9 +92,9 @@ class FlutterTai {
       int timeout = -1,
       int retryTimes = -1,
       double fragSize = 1,
-      bool fragEnable = false,
+      bool fragEnable = true,
       bool vadEnable = true,
-      int vadInterval = 4000}) async {
+      int vadInterval = 3000}) async {
     if (workMode == TAIOralEvaluationWorkMode.STREAM) {
       timeout = timeout == -1 ? 5 : timeout;
       retryTimes = retryTimes == -1 ? 5 : retryTimes;

@@ -66,12 +66,36 @@ public class FlutterTaiPlugin implements MethodCallHandler {
     public void onMethodCall(MethodCall call, Result result) {
         if (call.method.equals("record")) {
             onRecord(call, result);
-        } else {
+        } else if (call.method.equals("stop")) {
+            onStop(call, result);
+        } else{
             result.notImplemented();
         }
     }
 
+    public void onStop(final MethodCall call, final Result result) {
+        final String _id= call.argument("id");
+        if (_oral.isRecording()) {
+            _oral.stopRecordAndEvaluation(new TAIOralEvaluationCallback() {
+                @Override
+                public void onResult(final TAIError error) {
+                    Gson gson = new Gson();
+                    String string = gson.toJson(error);
+                    final Map<String, String> _data = new HashMap();
+                    _data.put("id", _id);
+                    _data.put("err", string);
+                    activity.runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    _channel.invokeMethod("onStop", _data);
+                                }
+                            });
 
+                }
+            });
+        }
+    }
     public void onRecord(final MethodCall call, final Result result) {
 
         final Result _result = result;
