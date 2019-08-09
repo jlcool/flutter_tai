@@ -60,7 +60,7 @@ public class FlutterTaiPlugin implements MethodCallHandler {
     private FlutterTaiPlugin(Registrar registrar, Activity activity) {
         this.activity=activity;
     }
-    private TAIOralEvaluation _oral = new TAIOralEvaluation();
+    private TAIOralEvaluation _oral;
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
@@ -75,7 +75,7 @@ public class FlutterTaiPlugin implements MethodCallHandler {
 
     public void onStop(final MethodCall call, final Result result) {
         final String _id= call.argument("id");
-        if (_oral.isRecording()) {
+        if (_oral!=null && _oral.isRecording()) {
             _oral.stopRecordAndEvaluation(new TAIOralEvaluationCallback() {
                 @Override
                 public void onResult(final TAIError error) {

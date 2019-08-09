@@ -28,9 +28,23 @@ NSString *flutterTaiPluginId;
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   if ([@"record" isEqualToString:call.method]) {
     [self onRecord:call result:result];
+  } else if ([@"stop" isEqualToString:call.method]) {
+    [self onStop:call result:result];
   } else {
     result(FlutterMethodNotImplemented);
   }
+}
+- (IBAction)onStop:(FlutterMethodCall*)call result:(FlutterResult)result{
+    flutterTaiPluginId =call.arguments[@"id"];
+    if([self.oralEvaluation isRecording]){
+        [self.oralEvaluation stopRecordAndEvaluation:^(TAIError *error) {
+            [flutterTaiPluginChannel invokeMethod:@"onStop" arguments:@{
+                                                                        @"err": [NSString stringWithFormat:@"%@", error],
+                                                                        @"id":flutterTaiPluginId
+                                                                        }];
+        }];
+        return;
+    }
 }
 - (IBAction)onRecord:(FlutterMethodCall*)call result:(FlutterResult)result{
     flutterTaiPluginId =call.arguments[@"id"];
