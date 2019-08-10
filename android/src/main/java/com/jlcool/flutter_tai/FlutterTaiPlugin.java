@@ -48,27 +48,54 @@ import java.util.UUID;
 public class FlutterTaiPlugin implements MethodCallHandler {
     private static Context _context;
     private static MethodChannel _channel;
+    private final Activity activity;
     /**
      * Plugin registration.
      */
     public static void registerWith(Registrar registrar) {
-        _context = registrar.context(); 
+        _context = registrar.context();
         _channel = new MethodChannel(registrar.messenger(), "flutter_tai");
-        _channel.setMethodCallHandler(new FlutterTaiPlugin());
+        _channel.setMethodCallHandler(new FlutterTaiPlugin(registrar, registrar.activity()));
     }
-
-    private TAIOralEvaluation _oral = new TAIOralEvaluation();
+    private FlutterTaiPlugin(Registrar registrar, Activity activity) {
+        this.activity=activity;
+    }
+    private TAIOralEvaluation _oral;
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
         if (call.method.equals("record")) {
             onRecord(call, result);
-        } else {
+        } else if (call.method.equals("stop")) {
+            onStop(call, result);
+        } else{
             result.notImplemented();
         }
     }
 
+    public void onStop(final MethodCall call, final Result result) {
+        final String _id= call.argument("id");
+        if (_oral!=null && _oral.isRecording()) {
+            _oral.stopRecordAndEvaluation(new TAIOralEvaluationCallback() {
+                @Override
+                public void onResult(final TAIError error) {
+                    Gson gson = new Gson();
+                    String string = gson.toJson(error);
+                    final Map<String, String> _data = new HashMap();
+                    _data.put("id", _id);
+                    _data.put("err", string);
+                    activity.runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    _channel.invokeMethod("onStop", _data);
+                                }
+                            });
 
+                }
+            });
+        }
+    }
     public void onRecord(final MethodCall call, final Result result) {
 
         final Result _result = result;
@@ -82,10 +109,17 @@ public class FlutterTaiPlugin implements MethodCallHandler {
                 public void onResult(final TAIError error) {
                     Gson gson = new Gson();
                     String string = gson.toJson(error);
-                    Map<String, String> _data = new HashMap();
+                    final Map<String, String> _data = new HashMap();
                     _data.put("id", _id);
                     _data.put("err", string);
-                    _channel.invokeMethod("onStop", _data);
+                    activity.runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    _channel.invokeMethod("onStop", _data);
+                                }
+                     });
+
                 }
             });
         } else {
@@ -97,13 +131,20 @@ public class FlutterTaiPlugin implements MethodCallHandler {
                     Gson gson = new Gson();
                     String errString = gson.toJson(error);
                     String retString = gson.toJson(result);
-                    Map<String, String> _data = new HashMap();
+                    final Map<String, String> _data = new HashMap();
                     _data.put("seqId", String.valueOf(data.seqId));
                     _data.put("end", String.valueOf(data.bEnd ? 1 : 0));
                     _data.put("err", errString);
                     _data.put("ret", retString);
                     _data.put("id", _id);
-                    _channel.invokeMethod("onEvaluationData", _data);
+                    activity.runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    _channel.invokeMethod("onEvaluationData", _data);
+                                }
+                            });
+
                 }
 
                 @Override
@@ -113,10 +154,17 @@ public class FlutterTaiPlugin implements MethodCallHandler {
 
                 @Override
                 public void onVolumeChanged(final int volume) {
-                    Map<String, String> _data = new HashMap();
+                    final Map<String, String> _data = new HashMap();
                     _data.put("volume", String.valueOf(volume));
                     _data.put("id", _id);
-                    _channel.invokeMethod("onProgress", _data);
+                    activity.runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    _channel.invokeMethod("onProgress", _data);
+                                }
+                            });
+
                 }
             });
 
@@ -155,10 +203,17 @@ public class FlutterTaiPlugin implements MethodCallHandler {
                 public void onResult(final TAIError error) {
                     Gson gson = new Gson();
                     String string = gson.toJson(error);
-                    Map<String, String> _data = new HashMap();
+                    final Map<String, String> _data = new HashMap();
                     _data.put("err", string);
                     _data.put("id", _id);
-                    _channel.invokeMethod("onResult", _data);
+                    activity.runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    _channel.invokeMethod("onResult", _data);
+                                }
+                            });
+
                 }
             });
         }
