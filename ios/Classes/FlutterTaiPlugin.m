@@ -56,7 +56,7 @@ NSString *flutterTaiPluginId;
                                                                         }];
         }];
         return;
-    }
+    }else{
     _fileName = [NSString stringWithFormat:@"taisdk_%ld.mp3", (long)[[NSDate date] timeIntervalSince1970]];
     
     
@@ -94,12 +94,15 @@ NSString *flutterTaiPluginId;
     [self.oralEvaluation startRecordAndEvaluation:param callback:^(TAIError *error) {
         [flutterTaiPluginChannel invokeMethod:@"onResult" arguments:@{@"id":flutterTaiPluginId,@"err":[NSString stringWithFormat:@"%@", error]}];
     }];
+    }
 }
 #pragma mark - oral evaluation delegate
 - (void)oralEvaluation:(TAIOralEvaluation *)oralEvaluation onEvaluateData:(TAIOralEvaluationData *)data result:(TAIOralEvaluationRet *)result error:(TAIError *)error
 {
     [self writeMP3Data:data.audio fileName:_fileName];
-    [flutterTaiPluginChannel invokeMethod:@"onEvaluationData" arguments:@{@"id":flutterTaiPluginId,@"seqId":[NSString stringWithFormat:@"%ld", (long)data.seqId],@"end":[NSString stringWithFormat:@"%ld", (long)data.bEnd], @"err":[NSString stringWithFormat:@"%@", error],@"ret":[NSString stringWithFormat:@"%@", result]}];
+    NSData * jsonData=[NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    [flutterTaiPluginChannel invokeMethod:@"onEvaluationData" arguments:@{@"id":flutterTaiPluginId,@"seqId":[NSString stringWithFormat:@"%ld", (long)data.seqId],@"end":[NSString stringWithFormat:@"%ld", (long)data.bEnd], @"err":[NSString stringWithFormat:@"%@", error],@"ret":[NSString stringWithFormat:@"%@", jsonString]}];
 }
 
 - (void)onEndOfSpeechInOralEvaluation:(TAIOralEvaluation *)oralEvaluation
